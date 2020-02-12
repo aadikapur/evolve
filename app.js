@@ -1,20 +1,29 @@
-//express. npm install express
-var express = require('express');
-var app = express();
-var serv = require('http').Server(app);
-app.get('/', function(req, res) {
-    res.sendFile(__dirname + '/client/index.html');  
+//code from official socket.io docs
+var app = require('express')();
+var http = require('http').createServer(app);
+var io = require('socket.io')(http);
+
+////Express
+//Server: for a (GET, {}) request, return index.html
+app.get('/', function(req, res){
+  res.sendFile(__dirname + '/client/index.html');
 });
-app.use('/client', express.static(__dirname + '/client'));
-serv.listen(2000);
-console.log('Server started.')
 
-//socket. npm install socket.io
-var io = require('socket.io')(serv, {});
-io.sockets.on('connection', function(socket){
-    console.log('a user connected');
+//Server: listen for HTTP requests on port 3000
+http.listen(2000, function(){
+  console.log('listening on *:2000');
+});
 
-    socket.on('happy', function() {
-        console.log('happy');
-    });
-  });
+////SOCKET.IO
+//Server: Send client time every second
+var time = 0;
+setInterval(function() {
+    time++;
+    io.sockets.emit('timer', time);
+}, 1000);
+
+//Server: a new client connected
+io.on('connection', function(socket){
+  console.log('a user connected');
+  io.sockets.emit('timer', time);
+});

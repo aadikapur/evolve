@@ -1,4 +1,46 @@
-<script src="/socket.io/socket.io.js"></script>
-<script>
-  var socket = io();
-</script>
+<!doctype html>
+<html>
+<head>
+  <h1><center>evol.ve</center></h1>
+</head>
+<body>
+  <p id="counter"></p>
+  <canvas id="canvas" width="500" height="500"></canvas>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    var socket = io();
+    var context = canvas.getContext('2d');
+
+    //Update time every time you get the message
+    socket.on('timer', function(time) {
+      document.getElementById("counter").innerHTML = "TIME: " + time;
+    });
+    
+    //Defines how to draw circle at position x
+    function draw(x, y, dx, dy) {
+      context.clearRect(0, 0, 500, 500);
+      context.beginPath();
+      context.fillStyle="#0000ff";
+      // Draws a circle of radius 20 at the coordinates 100,100 on the canvas
+      context.arc(x,y,20,0,Math.PI*2,true);
+      context.closePath();
+      context.fill();
+      if (x >= 499) {
+        dx = -2;
+      } else if (x < 1) {
+        dx = 2;
+      }
+      if (y < 1) {
+        dy = 10;
+      } else if (y > 499) {
+        dy = -10;
+      }
+      setTimeout(function () {
+        draw(x + dx, y + dy, dx, dy);
+      }, 100);
+    }
+
+    draw(0, 0, 2, 20);
+  </script>
+</body>
+</html>
